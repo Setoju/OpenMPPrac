@@ -1,0 +1,3 @@
+﻿  OpenMPArrSum.cpp
+C:\Users\Yuuko\source\repos\OpenMPArrSum\OpenMPArrSum.cpp(15,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  OpenMPArrSum.vcxproj -> C:\Users\Yuuko\source\repos\OpenMPArrSum\x64\Debug\OpenMPArrSum.exe
