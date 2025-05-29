@@ -42,29 +42,24 @@ void min_row_sum(int num_threads, int& min_row_index, long long& min_sum) {
 
     min_sum = row_sums[0];
     min_row_index = 0;
-    for (int i = 1; i < ROWS; ++i) {
-        if (row_sums[i] < min_sum) {
-            min_sum = row_sums[i];
-            min_row_index = i;
+
+    // Better approach but still no visible time improvements?   
+#pragma omp parallel for num_threads(num_threads)
+    for (int i = 0; i < ROWS; ++i) {
+        long long local_min = row_sums[i];
+        int local_index = i;
+        if (local_min >= min_sum)
+            continue;
+
+
+#pragma omp critical
+        {
+            if (local_min < min_sum) {
+                min_sum = local_min;
+                min_row_index = local_index;
+            }
         }
     }
-    // Alternative approach using OpenMP to find the minimum row sum
-    // But it's not efficient to use critical section in this case
-    // We can't easily handle this using reduction because there're two variables we need to keep track of
-    // OpenMP 5.0+ has reduction with tuples
-   
-//#pragma omp parallel for num_threads(num_threads)
-//    for (int i = 0; i < ROWS; ++i) {
-//        long long local_min = row_sums[i];
-//        int local_index = i;
-//#pragma omp critical
-//        {
-//            if (local_min < min_sum) {
-//                min_sum = local_min;
-//                min_row_index = local_index;
-//            }
-//        }
-//    }
 
     double end = omp_get_wtime();
     cout << "Min row sum found in " << end - start << " seconds with " << num_threads << " threads.\n";
@@ -76,8 +71,6 @@ int main() {
     omp_set_nested(1);
     int min_row_idx = -1;
     long long min_val = 0, total = 0;
-
-    double start = omp_get_wtime();
 
 #pragma omp parallel sections
     {
@@ -95,8 +88,6 @@ int main() {
     /*total = total_sum(1);
 
     min_row_sum(1, min_row_idx, min_val);*/
-
-    double end = omp_get_wtime();
 
     cout << "Total sum of matrix elements: " << total << endl;
     cout << "Row with minimum sum: " << min_row_idx << " (sum = " << min_val << ")\n";
