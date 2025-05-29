@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 #include <cstdlib> // for rand() and srand()
 #include <ctime>
 #include <omp.h>
@@ -9,7 +8,8 @@ using namespace std;
 const int ROWS = 10000;
 const int COLS = 10000;
 
-vector<vector<int>> matrix(ROWS, vector<int>(COLS));
+int matrix[ROWS][COLS];
+long long row_sums[ROWS];
 
 void init_matrix() {
     srand(time(NULL)); // it passes current time and since it changes every second it will generate different random numbers each time
@@ -33,7 +33,6 @@ long long total_sum(int num_threads) {
 }
 
 void min_row_sum(int num_threads, int& min_row_index, long long& min_sum) {
-    vector<long long> row_sums(ROWS, 0);
     double start = omp_get_wtime();
 
 #pragma omp parallel for num_threads(num_threads)
@@ -80,22 +79,22 @@ int main() {
 
     double start = omp_get_wtime();
 
-//#pragma omp parallel sections
-//    {
-//#pragma omp section
-//        {
-//            total = total_sum(8);
-//        }
-//
-//#pragma omp section
-//        {
-//            min_row_sum(8, min_row_idx, min_val);
-//        }
-//    }
+#pragma omp parallel sections
+    {
+#pragma omp section
+        {
+            total = total_sum(8);
+        }
 
-    total = total_sum(1);
+#pragma omp section
+        {
+            min_row_sum(8, min_row_idx, min_val);
+        }
+    }
 
-    min_row_sum(1, min_row_idx, min_val);
+    /*total = total_sum(1);
+
+    min_row_sum(1, min_row_idx, min_val);*/
 
     double end = omp_get_wtime();
 
